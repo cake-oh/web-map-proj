@@ -35,7 +35,7 @@ L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.{e
 var eezLayers = {}; // make container for EEZ layer
 var eezGeoJSONLayer;
 
-fetch('data/eez_boundaries_v12_0_360.json')
+fetch('/data/eez_boundaries_v12_0_360.json')
     .then(function(response) {
         return response.json();
     })
@@ -125,7 +125,7 @@ infoControl.addTo(map2);
 // diversity
 var imageBounds = [[-47,102], [50, 271]]; // note: keep these the same as the raster extents in R
 
-var fishing = L.imageOverlay('data/pacific_ocean_raster_div.png', imageBounds, { // fishing diversity
+var fishing = L.imageOverlay('/data/pacific_ocean_raster_div.png', imageBounds, { // fishing diversity
     opacity: 0.1,
     interactive: true
 }).addTo(map2);
@@ -133,7 +133,7 @@ var fishing = L.imageOverlay('data/pacific_ocean_raster_div.png', imageBounds, {
 // abundance
 var imageBounds = [[-47,102], [50, 271]];
 
-var conflict = L.imageOverlay('data/pacific_ocean_raster_abundance.png', imageBounds, { // conflict hotspots
+var conflict = L.imageOverlay('/data/pacific_ocean_raster_abundance.png', imageBounds, { // conflict hotspots
     opacity: 0.5,
     interactive: true,
 
@@ -181,7 +181,7 @@ document.getElementById('opacitySlidercon').addEventListener('input', function(e
 //// load json data to call for diversity and conflict value pop-up ////
 // diversity data
 let diversityData = []; // make container
-fetch('data/data_diversity_longline.json')
+fetch('/data/data_diversity_longline.json')
     .then(response => response.json())
     .then(data => {
         diversityData = data;
@@ -191,7 +191,7 @@ fetch('data/data_diversity_longline.json')
 // conflict data 
 var abundanceData = []; // Make sure this is accessible
 
-fetch('data/data_diversity_longline_webmap.json')
+fetch('/data/data_diversity_longline_webmap.json')
     .then(response => response.json())
     .then(data => {
         abundanceData = data; // Assuming this data is an array of objects
