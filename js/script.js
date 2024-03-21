@@ -18,7 +18,7 @@ L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.{e
 //// fetch EEZ boundaries ////
 var eezLayers = {}; // make container for EEZ layer
 var eezGeoJSONLayer;
-fetch('data/eez_v12_0_360.json')
+fetch('/data/eez_v12_0_360.json')
 // fetch('https://oregonstate.box.com/shared/static/55vvgtv7ttcct009b91yx86qjxdjqtm6')
     .then(function(response) {
         return response.json(); // convert the response to JSON
