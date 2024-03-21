@@ -15,88 +15,55 @@ L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.{e
 
 
 
-//// fetch country boundaries ////
-// fetch('data/world-administrative-boundaries.json')
-//     .then(function(response) {
-//         return response.json(); // Convert the response to JSON
-//     })
-//     .then(function(geojsonData) {
-//         // Now that we have the GeoJSON data, we can use it here
-//         L.geoJSON(geojsonData).addTo(map2);
-//     })
-//     .catch(function(error) {
-//         // It's good practice to catch and handle any errors
-//         console.error('error:', error);
-//     });
-
-
-
-//// fetch EEZ boundaries (national waters) ////
+//// fetch EEZ boundaries ////
 var eezLayers = {}; // make container for EEZ layer
 var eezGeoJSONLayer;
-
-fetch('/data/eez_boundaries_v12_0_360.json')
+fetch('data/eez_v12_0_360.json')
     .then(function(response) {
-        return response.json();
+        return response.json(); // convert the response to JSON
     })
     .then(function(geojsonData) {
-        // filter out unwanted EEZ attributes
-        geojsonData.features = geojsonData.features.filter(function(feature) {
-            return feature.properties.LINE_TYPE !== "Archipelagic baseline" &&
-                    feature.properties.LINE_TYPE !== "Straight baseline";
-        });
-        // style map
-        L.geoJSON(geojsonData, {
+        var eezGeoJSONLayer = L.geoJSON(geojsonData, {
             style: function(feature) { 
                 return {
                     color: "darkblue", 
                     weight: 1.5,        
                     dashArray: '4',
-                    opacity: .6    
+                    opacity: 0.6,
+                    fillOpacity: 0    
                 };
             },
-        // group EEZ for pop-up
             onEachFeature: function(feature, layer) {
-                var eez1 = feature.properties.EEZ1.replace(/\(.*?\)/g, "").trim(); // grab EEZ name - get rid of parentheses 
-                var territory1 = feature.properties.TERRITORY1; // grab country it belongs to name
-
-                if(!eezLayers[territory1]){
-                    eezLayers[territory1] = [];
-                }
-                eezLayers[territory1].push(layer);
-
-                layer.bindPopup("<strong>" + territory1 + "</strong>" + "</br>" + eez1); // fill pop-up w/ EEZ and country
-        // make pop-up on mouseover: thicken line when mouse is on
                 layer.on({
                     mouseover: function(e) {
-                        eezLayers[territory1].forEach(function(layer) {
-                            var layer = e.target;
-                            layer.setStyle({
-                                weight: 15 // Set the weight to highlight
-                            });
+                        var layer = e.target;
+                        layer.setStyle({
+                            weight: 5, // Highlight style
+                            opacity: 0.7
                         });
                         if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                             layer.bringToFront();
                         }
-                        infoControl.update(layer.feature.properties); // Update the control with properties of the hovered feature
+                        // Update the info control with the feature's properties
+                        infoControl.update(layer.feature.properties);
                     },
                     mouseout: function(e) {
-                        eezLayers[territory1].forEach(function(layer) {
-                            layer.setStyle({
-                                weight: 1.5 // Reset to the original weight
-                            });
-                        });
+                        eezGeoJSONLayer.resetStyle(e.target); // Reset the style to original using the layer reference
                         infoControl.update(null);
                     }
                 });
-            },
+            }
         }).addTo(map2);
+        console.log(geojsonData.features[0].properties); // Log the properties of the first feature to check
+
     })
     .catch(function(error) {
         console.error('error:', error);
     });
 
-// function for the mouseovers
+
+
+    // function for the mouseovers
 var infoControl = L.control({position: 'topright'}); 
 
 infoControl.onAdd = function(map) {
@@ -107,15 +74,88 @@ infoControl.onAdd = function(map) {
 
 infoControl.update = function(props) {
     if (props) { // if on an EEZ, show its information
-        var eez1 = props.EEZ1.replace(/\(.*?\)/g, "").trim(); // grab EEZ name - get rid of parentheses 
         var territory1 = props.TERRITORY1; // grab country it belongs to name
-        this._div.innerHTML = '<h4>EEZ Information</h4>' + 
-            '<b>' + territory1 + '</b><br />' + eez1;
+        var sovereign1 = props.SOVEREIGN1; // grab the sovereign name
+        // Check if territory1 and sovereign1 are the same
+        if (territory1 === sovereign1) {
+            this._div.innerHTML = '<h4>EEZ Information</h4>' + 
+                '<b>' + territory1 + '</b>';
+        } else {
+            this._div.innerHTML = '<h4>EEZ Information</h4>' + 
+                '<b>' + territory1 + '</b><br />' + sovereign1;
+        }
     } else { // else, just show instructions
         this._div.innerHTML = 'Hover over an EEZ';
     }
 };
 infoControl.addTo(map2);
+
+//// fetch EEZ boundaries (national waters) ////
+// var eezLayers = {}; // make container for EEZ layer
+// var eezGeoJSONLayer;
+
+// fetch('/data/eez_v12_0_360.json')
+//     .then(function(response) {
+//         return response.json();
+//     })
+//     .then(function(geojsonData) {
+//         // filter out unwanted EEZ attributes
+//         geojsonData.features = geojsonData.features.filter(function(feature) {
+//             return feature.properties.LINE_TYPE !== "Archipelagic baseline" &&
+//                     feature.properties.LINE_TYPE !== "Straight baseline";
+//         });
+//         // style map
+//         L.geoJSON(geojsonData, {
+//             style: function(feature) { 
+//                 return {
+//                     color: "darkblue", 
+//                     weight: 1.5,        
+//                     dashArray: '4',
+//                     opacity: .6    
+//                 };
+//             },
+//         // group EEZ for pop-up
+//             onEachFeature: function(feature, layer) {
+//                 var eez1 = feature.properties.EEZ1.replace(/\(.*?\)/g, "").trim(); // grab EEZ name - get rid of parentheses 
+//                 var territory1 = feature.properties.TERRITORY1; // grab country it belongs to name
+
+//                 if(!eezLayers[territory1]){
+//                     eezLayers[territory1] = [];
+//                 }
+//                 eezLayers[territory1].push(layer);
+
+//                 layer.bindPopup("<strong>" + territory1 + "</strong>" + "</br>" + eez1); // fill pop-up w/ EEZ and country
+//         // make pop-up on mouseover: thicken line when mouse is on
+//                 layer.on({
+//                     mouseover: function(e) {
+//                         eezLayers[territory1].forEach(function(layer) {
+//                             var layer = e.target;
+//                             layer.setStyle({
+//                                 weight: 15 // Set the weight to highlight
+//                             });
+//                         });
+//                         if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+//                             layer.bringToFront();
+//                         }
+//                         infoControl.update(layer.feature.properties); // Update the control with properties of the hovered feature
+//                     },
+//                     mouseout: function(e) {
+//                         eezLayers[territory1].forEach(function(layer) {
+//                             layer.setStyle({
+//                                 weight: 1.5 // Reset to the original weight
+//                             });
+//                         });
+//                         infoControl.update(null);
+//                     }
+//                 });
+//             },
+//         }).addTo(map2);
+//     })
+//     .catch(function(error) {
+//         console.error('error:', error);
+//     });
+
+
 
 
 
@@ -126,9 +166,10 @@ infoControl.addTo(map2);
 var imageBounds = [[-47,102], [50, 271]]; // note: keep these the same as the raster extents in R
 
 var fishing = L.imageOverlay('/data/pacific_ocean_raster_div.png', imageBounds, { // fishing diversity
-    opacity: 0.1,
+    opacity: 0.5,
     interactive: true
 }).addTo(map2);
+fishing._image.classList.add('fishing-layer');
 
 // abundance
 var imageBounds = [[-47,102], [50, 271]];
@@ -138,6 +179,7 @@ var conflict = L.imageOverlay('/data/pacific_ocean_raster_abundance.png', imageB
     interactive: true,
 
 }).addTo(map2);
+conflict._image.classList.add('conflict-blend-layer');
 
 
 
@@ -189,7 +231,7 @@ fetch('/data/data_diversity_longline.json')
     .catch(error => console.error('error:', error));
 
 // conflict data 
-var abundanceData = []; // Make sure this is accessible
+var abundanceData = []; 
 
 fetch('/data/data_diversity_longline_webmap.json')
     .then(response => response.json())
@@ -197,6 +239,7 @@ fetch('/data/data_diversity_longline_webmap.json')
         abundanceData = data; // Assuming this data is an array of objects
     })
     .catch(error => console.error('error:', error));
+    
 
 // create event listener
 map2.on('click', function(e) {
@@ -212,7 +255,7 @@ map2.on('click', function(e) {
             const currDist = Math.sqrt(Math.pow(curr.lat - lat, 2) + Math.pow(curr.lon - lng, 2));
             return (prevDist < currDist) ? prev : curr;
         });
-        popupContent += `<strong>Fishing Intensity: </strong>${closestabundanceData.total_fe.toFixed(2)}<br>`;
+        popupContent += `<strong>Fishing Intensity: </strong>${closestabundanceData.total_fe.toFixed(2)} hours<br>`;
 
     // find the closest diversity data point
     if (diversityData.length > 0) {
@@ -221,7 +264,7 @@ map2.on('click', function(e) {
             const currDist = Math.sqrt(Math.pow(curr.lat - lat, 2) + Math.pow(curr.lon - lng, 2));
             return (prevDist < currDist) ? prev : curr;
         });
-        popupContent += `<strong>International Diversity: </strong>${closestDiversityData.fe_diversity_norm.toFixed(2)}`;
+        popupContent += `<strong>International Diversity: </strong>${closestDiversityData.fe_diversity_norm.toFixed(2)} countries`;
     } 
     }
 
@@ -242,13 +285,15 @@ map2.on('click', function(e) {
 //// add legends ////
 // establish color palette
 var spectralColors = ["#9E0142","#D53E4F", "#F46D43", "#FDAE61", "#FEE08B", "#FFFFBF", "#E6F598", "#ABDDA4","#66C2A5", "#3288BD", "#5E4FA2"];
-var redylColors = ["#FFFFFF" ,"#F0F0F0", "#D9D9D9", "#BDBDBD", "#969696", "#737373", "#525252", "#252525","#000000"];
+var greyColors = ["#FFFFFF" ,"#F0F0F0", "#D9D9D9", "#BDBDBD", "#969696", "#737373", "#525252", "#252525","#000000"];
+var orngColors = ["#FFF5EB","#FEE6CE", "#FDD0A2", "#FDAE6B", "#FD8D3C", "#F16913", "#D94801", "#A63603","#7F2704"]
+var greenColors = ["F7FCF5", "#E5F5E0", "#C7E9C0", "#A1D99B", "#74C476" ,"#41AB5D" ,"#238B45" ,"#006D2C","#00441B"]
 
 // add to map
-var diversityLegend = createLegend(spectralColors.reverse(), "Fishing Diversity",0,1.83,'bottomleft');
+var diversityLegend = createLegend(greenColors, "Fishing Diversity",0,1.84,'bottomleft');
 diversityLegend.addTo(map2);
 
-var abundanceLegend = createLegend(redylColors, "Fishing Effort<br>(logged hours)",0,11,'bottomright');
+var abundanceLegend = createLegend(orngColors, "Fishing Effort<br>(logged hours)",0,11.2,'bottomright');
 abundanceLegend.addTo(map2);
 
 // build function for legend

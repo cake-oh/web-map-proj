@@ -34,7 +34,13 @@ p{
     width: 100%; 
 }
 
+.fishing-layer {
+    mix-blend-mode: overlay;
+}
 
+.conflict-blend-layer {
+    mix-blend-mode: overlay;
+  }
 /* #map {height : 600px;
     width: 700px;} */
 

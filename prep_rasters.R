@@ -41,8 +41,10 @@ png("/Users/keikonomura/Library/Mobile Documents/com~apple~CloudDocs/PhD stuff/w
 # png("/Users/keikonomura/Library/Mobile Documents/com~apple~CloudDocs/PhD stuff/webmapping_project/data/conflict_raster.png",
     # width=png_width, height=png_height,bg="transparent")
 par(mar=c(0,0,0,0), xaxs='i', yaxs='i')
-# plot(r_merc, axes=FALSE,bty="n", box=FALSE, col = rev(brewer.pal(11,"Spectral")),asp=1, legend=FALSE,useRaster=TRUE)  # Set useRaster=TRUE for large rasters
-plot(r_merc, axes=FALSE, bty="n", box=FALSE, col = rev(brewer.pal(11,"Greys")),asp=1, legend=FALSE, useRaster=TRUE)
+# plot(r_merc, axes=FALSE,bty="n", box=FALSE, col = brewer.pal(9,"Greens"),asp=1, legend=FALSE,useRaster=TRUE)  # Set useRaster=TRUE for large rasters
+plot(r_merc, axes=FALSE,bty="n", box=FALSE, col = brewer.pal(9,"Oranges"),asp=1, legend=FALSE,useRaster=TRUE)  # Set useRaster=TRUE for large rasters
+# plot(r_merc, axes=FALSE,bty="n", box=FALSE, col = rev(brewer.pal(9,"Blues")),asp=1, legend=FALSE,useRaster=TRUE)  # Set useRaster=TRUE for large rasters
+# plot(r_merc, axes=FALSE, bty="n", box=FALSE, col = rev(brewer.pal(11,"Greys")),asp=1, legend=FALSE, useRaster=TRUE)
 dev.off()
 
 #
