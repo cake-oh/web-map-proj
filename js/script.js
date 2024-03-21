@@ -38,23 +38,22 @@ fetch('data/eez_v12_0_360.json')
                     mouseover: function(e) {
                         var layer = e.target;
                         layer.setStyle({
-                            weight: 5, // Highlight style
+                            weight: 5, 
                             opacity: 0.7
                         });
                         if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                             layer.bringToFront();
                         }
-                        // Update the info control with the feature's properties
-                        infoControl.update(layer.feature.properties);
+                        infoControl.update(layer.feature.properties); // add to feature property temporarily
                     },
                     mouseout: function(e) {
-                        eezGeoJSONLayer.resetStyle(e.target); // Reset the style to original using the layer reference
+                        eezGeoJSONLayer.resetStyle(e.target); // reset the layer
                         infoControl.update(null);
                     }
                 });
             }
         }).addTo(map2);
-        console.log(geojsonData.features[0].properties); // Log the properties of the first feature to check
+        console.log(geojsonData.features[0].properties); // check a feature's properties
 
     })
     .catch(function(error) {
@@ -63,7 +62,7 @@ fetch('data/eez_v12_0_360.json')
 
 
 
-    // function for the mouseovers
+// function for the mouseovers
 var infoControl = L.control({position: 'topright'}); 
 
 infoControl.onAdd = function(map) {
@@ -76,13 +75,12 @@ infoControl.update = function(props) {
     if (props) { // if on an EEZ, show its information
         var territory1 = props.TERRITORY1; // grab country it belongs to name
         var sovereign1 = props.SOVEREIGN1; // grab the sovereign name
-        // Check if territory1 and sovereign1 are the same
-        if (territory1 === sovereign1) {
+        if (territory1 === sovereign1) { // if territory and sovereign are the same
             this._div.innerHTML = '<h4>EEZ Information</h4>' + 
-                '<b>' + territory1 + '</b>';
+                '<b>' + territory1 + '</b>'; // only write territory
         } else {
             this._div.innerHTML = '<h4>EEZ Information</h4>' + 
-                '<b>' + territory1 + '</b><br />' + sovereign1;
+                '<b>' + territory1 + '</b><br />' + sovereign1; // if they're different, write both
         }
     } else { // else, just show instructions
         this._div.innerHTML = 'Hover over an EEZ';
@@ -331,10 +329,3 @@ function createLegend(colors, title, minValue, maxValue, position) {
 
 
 
-
-
-//// establish functions (from lab 3, maybe useful) ////
-/// number formatting
-function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
