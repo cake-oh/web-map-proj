@@ -19,6 +19,7 @@ L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.{e
 var eezLayers = {}; // make container for EEZ layer
 var eezGeoJSONLayer;
 fetch('data/eez_v12_0_360.json')
+// fetch('https://oregonstate.box.com/shared/static/55vvgtv7ttcct009b91yx86qjxdjqtm6')
     .then(function(response) {
         return response.json(); // convert the response to JSON
     })
@@ -166,7 +167,7 @@ infoControl.addTo(map2);
 var imageBounds = [[-47,102], [50, 271]]; // note: keep these the same as the raster extents in R
 
 var fishing = L.imageOverlay('/data/pacific_ocean_raster_div.png', imageBounds, { // fishing diversity
-    opacity: 0.5,
+    opacity: 0.6,
     interactive: true
 }).addTo(map2);
 fishing._image.classList.add('fishing-layer');
@@ -175,7 +176,7 @@ fishing._image.classList.add('fishing-layer');
 var imageBounds = [[-47,102], [50, 271]];
 
 var conflict = L.imageOverlay('/data/pacific_ocean_raster_abundance.png', imageBounds, { // conflict hotspots
-    opacity: 0.5,
+    opacity: 0,
     interactive: true,
 
 }).addTo(map2);
@@ -188,7 +189,7 @@ var opacityControldiv = L.control({position: 'bottomleft'});
 opacityControldiv.onAdd = function(map) {
     var div = L.DomUtil.create('div');
     div.innerHTML = '<div style="text-align: center; margin-bottom: 5px;">Fishing Diversity</div>' +
-    '<input type="range" id="opacitySliderdiv" min="0" max="1" step="0.1" value="0.1" style="width:200px;">';
+    '<input type="range" id="opacitySliderdiv" min="0" max="1" step="0.1" value="0.6" style="width:200px;">';
     L.DomEvent.disableClickPropagation(div);
     return div;
 };
@@ -207,7 +208,7 @@ var opacityControlcon = L.control({position: 'bottomright'});
 opacityControlcon.onAdd = function(map) {
     var div = L.DomUtil.create('div');
     div.innerHTML = '<div style="text-align: center; margin-bottom: 5px;">Fishing Effort</div>' +
-    '<input type="range" id="opacitySlidercon" min="0" max="1" step="0.1" value="0.5" style="width:200px;">';    L.DomEvent.disableClickPropagation(div);
+    '<input type="range" id="opacitySlidercon" min="0" max="1" step="0.1" value="0" style="width:200px;">';    L.DomEvent.disableClickPropagation(div);
     return div;
 };
 opacityControlcon.addTo(map2);
