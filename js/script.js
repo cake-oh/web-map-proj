@@ -255,7 +255,7 @@ map2.on('click', function(e) {
             const currDist = Math.sqrt(Math.pow(curr.lat - lat, 2) + Math.pow(curr.lon - lng, 2));
             return (prevDist < currDist) ? prev : curr;
         });
-        popupContent += `<strong>Fishing Intensity: </strong>${closestabundanceData.total_fe.toFixed(2)} hours<br>`;
+        popupContent += `<strong>Fishing Effort: </strong>${closestabundanceData.total_fe.toFixed(2)} hours<br>`;
 
     // find the closest diversity data point
     if (diversityData.length > 0) {
