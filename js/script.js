@@ -1,8 +1,7 @@
-//////// fishing diversity map ////////
+//////// map w/ 2 rasters (fishing effort & diversity) + EEZ polygons ////////
 
 //// establish map variable ////
 var map2 = L.map('map2').setView([0, 200], 2.5); // Adjust the view and zoom level
-
 
 
 //// add base layer w/ bathymetry and coastlines ////
@@ -11,7 +10,6 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 
 }).addTo(map2);
-
 
 
 //// fetch EEZ boundaries ////
@@ -61,7 +59,6 @@ fetch('data/eez_v12_0_360.json')
     });
 
 
-
 // function for the mouseovers
 var infoControl = L.control({position: 'topright'}); 
 
@@ -88,76 +85,6 @@ infoControl.update = function(props) {
 };
 infoControl.addTo(map2);
 
-//// fetch EEZ boundaries (national waters) ////
-// var eezLayers = {}; // make container for EEZ layer
-// var eezGeoJSONLayer;
-
-// fetch('data/eez_v12_0_360.json')
-//     .then(function(response) {
-//         return response.json();
-//     })
-//     .then(function(geojsonData) {
-//         // filter out unwanted EEZ attributes
-//         geojsonData.features = geojsonData.features.filter(function(feature) {
-//             return feature.properties.LINE_TYPE !== "Archipelagic baseline" &&
-//                     feature.properties.LINE_TYPE !== "Straight baseline";
-//         });
-//         // style map
-//         L.geoJSON(geojsonData, {
-//             style: function(feature) { 
-//                 return {
-//                     color: "darkblue", 
-//                     weight: 1.5,        
-//                     dashArray: '4',
-//                     opacity: .6    
-//                 };
-//             },
-//         // group EEZ for pop-up
-//             onEachFeature: function(feature, layer) {
-//                 var eez1 = feature.properties.EEZ1.replace(/\(.*?\)/g, "").trim(); // grab EEZ name - get rid of parentheses 
-//                 var territory1 = feature.properties.TERRITORY1; // grab country it belongs to name
-
-//                 if(!eezLayers[territory1]){
-//                     eezLayers[territory1] = [];
-//                 }
-//                 eezLayers[territory1].push(layer);
-
-//                 layer.bindPopup("<strong>" + territory1 + "</strong>" + "</br>" + eez1); // fill pop-up w/ EEZ and country
-//         // make pop-up on mouseover: thicken line when mouse is on
-//                 layer.on({
-//                     mouseover: function(e) {
-//                         eezLayers[territory1].forEach(function(layer) {
-//                             var layer = e.target;
-//                             layer.setStyle({
-//                                 weight: 15 // Set the weight to highlight
-//                             });
-//                         });
-//                         if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-//                             layer.bringToFront();
-//                         }
-//                         infoControl.update(layer.feature.properties); // Update the control with properties of the hovered feature
-//                     },
-//                     mouseout: function(e) {
-//                         eezLayers[territory1].forEach(function(layer) {
-//                             layer.setStyle({
-//                                 weight: 1.5 // Reset to the original weight
-//                             });
-//                         });
-//                         infoControl.update(null);
-//                     }
-//                 });
-//             },
-//         }).addTo(map2);
-//     })
-//     .catch(function(error) {
-//         console.error('error:', error);
-//     });
-
-
-
-
-
-
 
 //// add the raster datasets ////
 // diversity
@@ -169,16 +96,15 @@ var fishing = L.imageOverlay('data/pacific_ocean_raster_div.png', imageBounds, {
 }).addTo(map2);
 fishing._image.classList.add('fishing-layer');
 
-// abundance
+// abundance/effort
 var imageBounds = [[-47,102], [50, 271]];
 
-var conflict = L.imageOverlay('data/pacific_ocean_raster_abundance.png', imageBounds, { // conflict hotspots
+var conflict = L.imageOverlay('data/pacific_ocean_raster_abundance.png', imageBounds, { 
     opacity: 0,
     interactive: true,
 
 }).addTo(map2);
 conflict._image.classList.add('conflict-blend-layer');
-
 
 
 //// blender for layer 1: diversity ////
@@ -200,7 +126,7 @@ document.getElementById('opacitySliderdiv').addEventListener('input', function(e
 
 
 
-//// blender for layer 2: conflict ////
+//// blender for layer 2: effort (conflict) ////
 var opacityControlcon = L.control({position: 'bottomright'});
 opacityControlcon.onAdd = function(map) {
     var div = L.DomUtil.create('div');
@@ -217,8 +143,7 @@ document.getElementById('opacitySlidercon').addEventListener('input', function(e
 });
 
 
-
-//// load json data to call for diversity and conflict value pop-up ////
+//// load json data for diversity and effort pop-up values ////
 // diversity data
 let diversityData = []; // make container
 fetch('data/data_diversity_longline.json')
@@ -228,17 +153,15 @@ fetch('data/data_diversity_longline.json')
     })
     .catch(error => console.error('error:', error));
 
-// conflict data 
+// effort data 
 var abundanceData = []; 
-
 fetch('data/data_diversity_longline_webmap.json')
     .then(response => response.json())
     .then(data => {
-        abundanceData = data; // Assuming this data is an array of objects
+        abundanceData = data; 
     })
     .catch(error => console.error('error:', error));
     
-
 // create event listener
 map2.on('click', function(e) {
     const lat = e.latlng.lat;
@@ -246,7 +169,7 @@ map2.on('click', function(e) {
 
     let popupContent = '';
 
-    // find the closest conflict data point
+    // find the closest effort data point
     if (abundanceData.length > 0) {
         const closestabundanceData = abundanceData.reduce((prev, curr) => {
             const prevDist = Math.sqrt(Math.pow(prev.lat - lat, 2) + Math.pow(prev.lon - lng, 2));
@@ -255,7 +178,7 @@ map2.on('click', function(e) {
         });
         popupContent += `<strong>Fishing Effort: </strong>${closestabundanceData.total_fe.toFixed(2)} hours<br>`;
 
-    // find the closest diversity data point
+    // same for diversity
     if (diversityData.length > 0) {
         const closestDiversityData = diversityData.reduce((prev, curr) => {
             const prevDist = Math.sqrt(Math.pow(prev.lat - lat, 2) + Math.pow(prev.lon - lng, 2));
@@ -266,18 +189,13 @@ map2.on('click', function(e) {
     } 
     }
 
-    // display popup
-    if (popupContent !== '') {
+    if (popupContent !== '') { // make pop-up
         L.popup()
             .setLatLng(e.latlng)
             .setContent(popupContent)
             .openOn(map2);
     }
 });
-
-
-
-
 
 
 //// add legends ////
@@ -296,7 +214,7 @@ abundanceLegend.addTo(map2);
 
 // build function for legend
 function createLegend(colors, title, minValue, maxValue, position) {
-    var legend = L.control({position: position}); // Use the position parameter
+    var legend = L.control({position: position}); 
 
     legend.onAdd = function(map) {
         var div = L.DomUtil.create('div', 'info legend'),
@@ -306,16 +224,16 @@ function createLegend(colors, title, minValue, maxValue, position) {
 
         div.innerHTML += '<strong>' + title + '</strong><br>';
 
-        // Generate labels with value ranges
+        // make the labels from value ranges
         for (var i = 0; i < colors.length; i++) {
             var fromValue = minValue + (i * segment);
             var toValue = fromValue + segment;
             
-            // Formatting the label text
+            // format text
             var labelText = i < colors.length - 1 ?
                 fromValue.toFixed(2) + " - " + toValue.toFixed(2) :
                 "> " + fromValue.toFixed(2);
-
+            // show labels + colors
             labels.push(
                 '<i style="background:' + colors[i] + '"></i> ' + labelText);
         }
@@ -326,6 +244,4 @@ function createLegend(colors, title, minValue, maxValue, position) {
 
     return legend;
 }
-
-
 

@@ -1,4 +1,5 @@
 
+/* font stuffs */
 h1 {
     font-family: Arial, Helvetica, sans-serif;
     font-style: normal;
@@ -20,6 +21,20 @@ p{
    text-align: center;
 }
 
+.info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
+}
+
+/* top banner */
 .banner-heading {
     font-family: Arial, Helvetica, sans-serif;
     text-align: center;
@@ -34,6 +49,7 @@ p{
     width: 100%; 
 }
 
+/* raster blends */
 .fishing-layer {
     mix-blend-mode: overlay;
 }
@@ -41,29 +57,15 @@ p{
 .conflict-blend-layer {
     mix-blend-mode: overlay;
   }
-/* #map {height : 600px;
-    width: 700px;} */
 
-/* without legends = 270px */
+
+/* map dims */
 #map2 {height : 700px; 
     width: 1040px;
     margin: 0 auto;} 
 
 
-.info {
-    padding: 6px 8px;
-    font: 14px/16px Arial, Helvetica, sans-serif;
-    background: white;
-    background: rgba(255,255,255,0.8);
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    border-radius: 5px;
-}
-.info h4 {
-    margin: 0 0 5px;
-    color: #777;
-}
-
-    
+/* legend info */
 .legend {
     line-height: 18px;
     color: #555;
@@ -76,9 +78,6 @@ p{
     opacity: 0.7;
 }
 
-/* .blender-layer {
-    mix-blend-mode: difference;
-} */
 
 /* EEZ on + off toggle */
 .toggle-eez-control {
